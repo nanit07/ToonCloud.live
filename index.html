@@ -1,521 +1,260 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>ToonCloud+</title>
-  <link rel="icon" type="image/png" href="https://i.ebayimg.com/images/g/-poAAOSwHDdciVlj/s-l400.png" />
-  <style>
-    :root { --bg: #f6f5f2; --card: #ffffff; --muted: #6b6b6b; --accent: #1e88ff; }
-    * { box-sizing: border-box; }
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      background: linear-gradient(to bottom, var(--bg), #ffe6f7);
-      color: #111;
-    }
-    header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      z-index: 999;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ToonCloud+ TV</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap');
 
-      padding: 28px 36px;
-      border-bottom: 1px solid rgba(255,255,255,0.15);
-      display: flex;
-      align-items: center;
-      gap: 20px;
-      background: linear-gradient(90deg,#ff69b4,#ff8ad9,#ffc2f2);
-      color: white;
-      box-shadow: 0 4px 18px rgba(0,0,0,0.15);
-    }
-    h1 { font-size: 22px; margin: 0; }
-    .container { max-width: 1100px; margin: 28px auto; padding: 0 20px; }
+        :root {
+            --bg-color: #0f1014;
+            --glass-bg: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --accent: #00c3ff;
+            --text-main: #ffffff;
+            --text-sec: #a1a1a1;
+        }
 
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
-    .card {
-      position:relative; z-index:1;
-      background: var(--card);
-      border-radius: 16px;
-      padding: 0;
-      box-shadow: 0 6px 20px rgba(16,24,40,0.12);
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      min-height: 200px;
-      overflow: hidden;
-      transition: transform .25s ease, box-shadow .25s ease;
-    }
-    .card:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 12px 28px rgba(16,24,40,0.18);
-    }
-    .cover {
-      height: 150px;
-      border-radius: 16px 16px 0 0;
-      background-size: cover;
-      background-position: center;
-      display: flex;
-      align-items: flex-end;
-      padding: 10px;
-      color: #fff;
-      font-weight: 700;
-      position: relative;
-      overflow: hidden;
-    }
-    .cover::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(to top, rgba(0,0,0,0.55), rgba(0,0,0,0.1));
-    }
-    .cover-title {
-      position: relative;
-      z-index: 2;
-      background: rgba(0,0,0,0.45);
-      padding: 6px 10px;
-      border-radius: 6px;
-      backdrop-filter: blur(2px);
-    }
-    .title { margin: 16px; font-size: 18px; line-height: 1.1; flex-grow: 1; }
-    .meta { color: var(--muted); font-size: 13px; margin: 0 16px 16px; }
+        body {
+            margin: 0; background-color: var(--bg-color); color: var(--text-main);
+            font-family: 'Poppins', sans-serif; overflow-x: hidden;
+        }
 
-    .back { display: inline-block; margin-bottom: 12px; color: var(--accent); cursor: pointer; }
-    .series-header { display: flex; gap: 20px; align-items: center; margin-bottom: 20px; }
-    .big-cover { width: 160px; height: 100px; border-radius: 10px; background-size: cover; background-position: center; }
-    .seasons { margin-top: 18px; }
-    .season { background: var(--card); padding: 12px; border-radius: 10px; margin-bottom: 12px; }
-    .episode { display: flex; justify-content: flex-start; align-items: center; padding: 8px 4px; border-radius: 8px; }
+        /* --- NAVBAR --- */
+        nav {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 20px 40px; position: absolute; top: 0; width: 100%; z-index: 10; box-sizing: border-box;
+        }
+        .logo-container img { height: 45px; filter: drop-shadow(0 0 8px rgba(0, 195, 255, 0.4)); cursor: pointer; }
 
-    /* Botón tipo "pill" con flecha, todos mismo tamaño */
-    .episode a {
-      position: relative;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      min-width: 240px;
-      height: 44px;
-      padding: 0 22px;
-      border-radius: 999px;
-      background: linear-gradient(135deg, #8b7bff, #b993ff);
-      box-shadow: 0 10px 20px rgba(139, 123, 255, 0.45);
-      color: #fff;
-      font-weight: 600;
-      font-size: 14px;
-      text-decoration: none;
-      border: none;
-      cursor: pointer;
-      overflow: hidden;
-      white-space: nowrap;
-    }
-    .episode a::after {
-      content: "→";
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 26px;
-      height: 26px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.18);
-      font-size: 14px;
-    }
-    .episode a:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 16px 30px rgba(139, 123, 255, 0.6);
-    }
-    .episode a:active {
-      transform: translateY(0);
-      box-shadow: 0 8px 16px rgba(139, 123, 255, 0.35);
-    }
+        /* --- HERO --- */
+        .hero {
+            height: 75vh; position: relative; display: flex; align-items: center; padding: 0 60px;
+            background-size: cover; background-position: center top; transition: 0.5s;
+        }
+        .hero::after {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(90deg, #0f1014 10%, transparent 60%, #0f1014 100%),
+                        linear-gradient(0deg, #0f1014 5%, transparent 50%);
+        }
+        .hero-content { position: relative; z-index: 2; max-width: 600px; }
+        .hero-title { font-size: 50px; font-weight: 800; margin-bottom: 10px; }
 
-    @media (max-width: 600px) {
-      .series-header { flex-direction: column; align-items: flex-start; }
-      .cover { height: 100px; }
-      .big-cover { width: 100%; height: 80px; }
-    }
-    .reactive-frame {
-      width: 100%;
-      padding: 4px;
-      border-radius: 20px;
-      background: linear-gradient(135deg, #ffcf4d, #ff88e8, #8b7bff);
-    }
-    .reactive-frame iframe {
-      width: 100%;
-      height: 480px;
-      border-radius: 16px;
-      border: none;
-      display: block;
-    }
+        /* --- BRANDS --- */
+        .brands-row {
+            position: relative; z-index: 5; margin-top: -50px; margin-bottom: 30px;
+            padding: 0 60px; display: flex; gap: 15px; overflow-x: auto; scrollbar-width: none;
+        }
+        .brand-item {
+            min-width: 90px; height: 65px; background: rgba(25, 25, 35, 0.8);
+            backdrop-filter: blur(20px); border: 1px solid var(--glass-border);
+            border-radius: 12px; display: flex; justify-content: center; align-items: center;
+            cursor: pointer; transition: 0.3s; padding: 10px;
+        }
+        .brand-item.active { background: white; border-color: var(--accent); }
+        .brand-item img { max-width: 100%; max-height: 100%; filter: brightness(200%); }
+        .brand-item.active img { filter: none; }
 
-</style>
+        /* --- CAROUSEL --- */
+        .section-container { padding: 0 60px 40px; }
+        .carousel { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 20px; }
+        .card {
+            min-width: 160px; border-radius: 10px; overflow: hidden;
+            cursor: pointer; transition: 0.3s; position: relative;
+        }
+        .card:hover { transform: scale(1.05); }
+        .card img { width: 100%; height: 240px; object-fit: cover; }
+        .card-title {
+            position: absolute; bottom: 0; width: 100%; padding: 10px;
+            background: linear-gradient(transparent, black); font-size: 12px; text-align: center;
+        }
+
+        /* --- INTERFAZ DE CAPÍTULOS (NUEVA) --- */
+        #details-screen {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #0f1014; z-index: 100; overflow-y: auto; padding: 40px 60px; box-sizing: border-box;
+        }
+        .details-header { display: flex; gap: 40px; margin-bottom: 40px; align-items: flex-start; }
+        .details-poster { width: 250px; border-radius: 15px; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
+        .details-info { flex: 1; }
+        .close-details { font-size: 30px; cursor: pointer; float: right; }
+
+        .season-selector {
+            margin-bottom: 20px; background: #1a1a1a; color: white;
+            padding: 10px; border-radius: 8px; border: 1px solid #333;
+        }
+
+        .episodes-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;
+        }
+        .episode-card {
+            background: #1a1a1a; border-radius: 12px; overflow: hidden;
+            cursor: pointer; transition: 0.3s; border: 1px solid #333;
+        }
+        .episode-card:hover { border-color: var(--accent); background: #252525; }
+        .episode-img { width: 100%; height: 150px; object-fit: cover; }
+        .episode-body { padding: 15px; }
+        .ep-number { color: var(--accent); font-size: 12px; font-weight: bold; }
+        .ep-name { font-size: 14px; font-weight: 600; margin-top: 5px; }
+
+        /* --- PLAYER --- */
+        #player-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.98); z-index: 200; justify-content: center; align-items: center;
+        }
+        .player-container { width: 90%; max-width: 1000px; }
+        .iframe-box { position: relative; padding-bottom: 56.25%; height: 0; }
+        .iframe-box iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+    </style>
 </head>
 <body>
 
-  <!-- LOGIN -->
-  <div id="loginScreen" style="position:fixed; inset:0; display:flex; justify-content:center; align-items:center; background:linear-gradient(to bottom,#ffe6f7,#fff); z-index:9999;">
-    <div style="background:white; padding:40px; border-radius:20px; box-shadow:0 4px 30px rgba(0,0,0,0.12); text-align:center; width:360px;">
-      <h2 style="color:#ff4fa3; margin-bottom:6px; font-size:26px;">ToonCloud+</h2>
-      <h3 style="margin:0; color:#444; font-weight:600;">Iniciar sesión</h3>
+    <nav>
+        <div class="logo-container"><img src="https://i.imgur.com/XAHG8BW.png" onclick="location.reload()"></div>
+    </nav>
 
-      <input type="text" placeholder="Usuario" style="width:100%; padding:12px 14px; border-radius:10px; border:1px solid #ddd; margin:22px 0; font-size:15px;" />
-
-      <button id="loginBtn" style="width:100%; padding:12px; border:none; background:#ff4fa3; color:white; font-weight:bold; border-radius:12px; font-size:16px; cursor:pointer;">Entrar</button>
-
-      <p style="margin-top:14px; color:#666; font-size:13px;">Acceso exclusivo para usuarios habilitados</p>
-    </div>
-  </div>
-
-
-  <header>
-    <h1>ToonCloud+</h1>
-    <div style="font-size:14px; color:#f7e6f9; margin-top:4px;">Series que crearon una generación • Tu portal definitivo</div>
-    <a href="https://instagram.com" target="_blank" style="margin-left:auto; display:flex; align-items:center; text-decoration:none;">
-      <img src="https://img.icons8.com/ios11/512/FFFFFF/instagram-new.png" alt="Instagram" style="width:32px; height:32px;">
-    </a>
-  </header>
-
-  <main class="container" style="margin-top:120px;">
-    <div class="recommend" style="background: #ffe6f7; padding: 18px 20px; border-radius: 14px; box-shadow: 0 4px 14px rgba(0,0,0,0.08); margin-bottom: 25px;">
-      <h2 style="margin:0 0 8px 0; color:#d63384;">🫵 Recomendación</h2>
-      <p style="margin:0; font-size:15px; color:#444;">Para mejorar tu experiencia, recomendamos instalar esta extensión de navegador (algunos capítulos pueden tener publicidad, y el AdBlock ayuda a bloquearla):</p>
-      <a href="https://chromewebstore.google.com/detail/gighmmpiobklfepjocnamgkkbiglidom?utm_source=item-share-cb" target="_blank" style="display:inline-block; margin-top:10px; background:#ff4f9e; color:white; padding:8px 14px; border-radius:8px; text-decoration:none; font-weight:bold;">➤ Instalar extensión</a>
-    </div>
-
-    <div style="margin-bottom:20px; display:flex; justify-content:center;">
-      <input id="searchBar" type="text" placeholder="Buscar series..." style="width:100%; max-width:400px; padding:10px 14px; border-radius:10px; border:1px solid #ccc; font-size:15px; box-shadow:0 2px 6px rgba(0,0,0,0.08);">
-    </div>
-
-    <section id="listView">
-      <div class="grid" id="seriesGrid"></div>
-    </section>
-
-    <section id="detailsView" style="display:none">
-      <div>
-        <span class="back" id="backBtn">← Volver</span>
-        <div class="series-header">
-          <span id="lastWatched" style="margin-left:20px; font-size:14px; color:#bbf; font-weight:600;">Último capítulo visto: ninguno</span>
-          <div class="big-cover" id="detailCover"></div>
-          <div>
-            <h2 id="detailTitle"></h2>
-            <div class="meta" id="detailMeta"></div>
-          </div>
+    <div id="hero" class="hero">
+        <div class="hero-content">
+            <h1 id="hero-title" class="hero-title">ToonCloud+</h1>
+            <p id="hero-desc">Cargando...</p>
         </div>
-        <div class="seasons" id="seasonsContainer"></div>
-      </div>
-    </section>
-  </main>
+    </div>
 
-  <footer style="text-align:center; padding:20px; color:#888; font-size:12px;">
-    Queremos dejar constancia de que [Nombre de tu Plataforma] no almacena, aloja, sube ni transmite ningún archivo de vídeo, multimedia o material protegido por derechos de autor en sus propios servidores. Todos los archivos de vídeo se encuentran alojados en servidores ajenos (como Vidsrc, Fembed, Streamtape, entre otros) sobre los cuales no tenemos control ni responsabilidad legal.created by N_777
-  </footer>
+    <div class="brands-row">
+        <div class="brand-item active" onclick="resetFilter(this)"><span>ALL</span></div>
+        <div class="brand-item" onclick="filterByNetwork('Cartoon Network', this)"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Cartoon_Network_2010_logo.svg/330px-Cartoon_Network_2010_logo.svg.png"></div>
+        <div class="brand-item" onclick="filterByNetwork('Nickelodeon', this)"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj33DnGGI7520Upxw725goYhYMR58tKCCuZT47pAZVL2PsKmpiY_HINpmXJoWxQUVavN9EibiI9PTOKwB8j2dMd5ElvGRbekSCApDQOTYes66MQSNGeAdOCMMPsGFDzHeBhXedA1MtQrqb_44Ty_C4loHIdUH4WgppV2ARk0PQ3POo7W2Y35a5y/s370/nicknewlogo.png"></div>
+        <div class="brand-item" onclick="filterByNetwork('Disney', this)"><img src="https://purodiseno.lat/wp-content/uploads/2023/12/LOGO-DISNEY-5-1024x764.png"></div>
+        <div class="brand-item" onclick="filterByNetwork('Discovery', this)"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Discovery_Kids_2021_2D_Gradient.svg/500px-Discovery_Kids_2021_2D_Gradient.svg.png"></div>
+    </div>
 
-  <script>
-    // Datos de ejemplo (incluye Bob Esponja con temporadas y capítulos)
-    const data = [
-      {
-        title: "Ben 10",
-        coverImg: "https://occ-0-8407-2218.1.nflxso.net/dnm/api/v6/6AYY37jfdO6hpXcMjf9Yu5cnmO0/AAAABQ1s0vDBlEwQzqGayxfyqaKtOoDBMENT5Gb5Wk4hIwTyNz9Iax2hJcLfFqlC9wN7GAEubsoGTxZcT1cWz2B9Gx4EVz8wfxPsYPat.jpg?r=54a",
-        seasons: [
-          {
-            name: "Temporada 1",
-            episodes: [
-              { title: "Y Fueron 10", url: "https://cubeembed.rpmvid.com/#3wngx" },
-              { title: "Aprendiendo a Ser Héroe", url: "https://cubeembed.rpmvid.com/#wky8s" },
-              { title: "El Krakken", url: "https://cubeembed.rpmvid.com/#xp5uf" },
-              { title: "Visitando a los Viejos", url: "https://cubeembed.rpmvid.com/#bdmfl" },
-              { title: "Buscando el Omnitrix", url: "https://cubeembed.rpmvid.com/#a59sm" },
-              { title: "Trampa Para Turistas", url: "https://cubeembed.rpmvid.com/#fnod5" },
-              { title: "Copiando Poderes", url: "https://cubeembed.rpmvid.com/#zfcbl" },
-              { title: "La Alianza", url: "https://cubeembed.rpmvid.com/#qtpyd" },
-              { title: "La Última Risa", url: "https://cubeembed.rpmvid.com/#bdmfv" },
-              { title: "La Chica de la Suerte", url: "https://cubeembed.rpmvid.com/#1mhc6" },
-              { title: "Un Pequeño Problema", url: "https://cubeembed.rpmvid.com/#fnodg" },
-              { title: "Efectos Secundarios", url: "https://cubeembed.rpmvid.com/#dqxnd" },
-              { title: "Secretos", url: "https://cubeembed.rpmvid.com/#6ckww" }
-            ]
-          },
-          {
-            name: "Temporada 2",
-            episodes: [
-              { title: "La Verdad", url: "https://cubeembed.rpmvid.com/#esvls" },
-              { title: "Un Nuevo Héroe", url: "https://cubeembed.rpmvid.com/#918gw" },
-              { title: "Kevin Regresa", url: "https://cubeembed.rpmvid.com/#fnocv" },
-              { title: "Gwen 10", url: "https://cubeembed.rpmvid.com/#bdm1j" },
-              { title: "Gladiadores", url: "https://cubeembed.rpmvid.com/#ouseq" },
-              { title: "Los Luchadores Galácticos", url: "https://cubeembed.rpmvid.com/#dqxk8" },
-              { title: "El Campamento del Terror", url: "https://cubeembed.rpmvid.com/#6ckdd" },
-              { title: "La Mejor Arma", url: "https://cubeembed.rpmvid.com/#g8qc8" },
-              { title: "La Suerte Regresa", url: "https://cubeembed.rpmvid.com/#haiui" },
-              { title: "El Nuevo Hotel", url: "https://cubeembed.rpmvid.com/#coeqt" },
-              { title: "El Fantasma Anda Suelto", url: "https://cubeembed.rpmvid.com/#wkyme" },
-              { title: "Dr. Animo y El Rayo Mutante", url: "https://cubeembed.rpmvid.com/#nyuhs" },
-              { title: "Los Malos Están de Regreso", url: "https://cubeembed.rpmvid.com/#918fh" }
-            ]
-          },
-          {
-            name: "Temporada 3",
-            episodes: [
-              { title: "Ben 10.000", url: "https://cubeembed.rpmvid.com/#tijs1" },
-              { title: "Locura a la Medianoche", url: "https://cubeembed.rpmvid.com/#xp5lw" },
-              { title: "Cambio de Cara", url: "https://cubeembed.rpmvid.com/#fno8j" },
-              { title: "Feliz Navidad", url: "https://cubeembed.rpmvid.com/#6ckd3" },
-              { title: "Benlobo", url: "https://cubeembed.rpmvid.com/#fnonw" },
-              { title: "El Juego Terminó", url: "https://cubeembed.rpmvid.com/#mxaxh" },
-              { title: "Súper Alianza de Héroes Alienígenas", url: "https://cubeembed.rpmvid.com/#esvsr" },
-              { title: "La Momia Mutante", url: "https://cubeembed.rpmvid.com/#haiar" },
-              { title: "Los Anormales", url: "https://cubeembed.rpmvid.com/#keler" },
-              { title: "El Monstruo del Clima", url: "https://cubeembed.rpmvid.com/#wkyk5" },
-              { title: "El Regreso", url: "https://cubeembed.rpmvid.com/#ylrld" },
-              { title: "Miedo a la Oscuridad", url: "https://cubeembed.rpmvid.com/#a595o" },
-              { title: "La Visitante", url: "https://cubeembed.rpmvid.com/#jgdgi" }
-            ]
-          },
-          {
-            name: "Temporada 4",
-            episodes: [
-              { title: "Un Día Perfecto", url: "https://cubeembed.rpmvid.com/#6ckcb" },
-              { title: "Es Hora de Dividirnos", url: "https://cubeembed.rpmvid.com/#ousay" },
-              { title: "No Tomes el Agua", url: "https://cubeembed.rpmvid.com/#mxaey" },
-              { title: "La Gran Boda Alienígena", url: "https://cubeembed.rpmvid.com/#lv3jv" },
-              { title: "Un Viaje en Carretera", url: "https://cubeembed.rpmvid.com/#g8qnm" },
-              { title: "Listo Para Luchar", url: "https://cubeembed.rpmvid.com/#918w8" },
-              { title: "Ken 10", url: "https://cubeembed.rpmvid.com/#nyaxi" },
-              { title: "Ben 10 contra Los 10 Negativos: Parte 1", url: "https://cubeembed.rpmvid.com/#8huyi" },
-              { title: "Ben 10 contra Los 10 Negativos: Parte 2", url: "https://cubeembed.rpmvid.com/#ur95w" },
-              { title: "De Regreso a Casa", url: "https://cubeembed.rpmvid.com/#3wmdu" }
-            ]
-          }
-        ]
-      },
-      {
-        title: "Las Sombrias Aventuras de Billy Y Mandy",
-        coverImg: "https://m.media-amazon.com/images/S/pv-target-images/5005c756c1996dd1ee63c5e98dda8d3e11229ef588d1e3e7e746c04e4e9e9924.jpg",
-        seasons: []
-      },
-      {
-        title: "Scooby Doo Misterios S.A",
-        coverImg: "https://occ-0-8407-2218.1.nflxso.net/dnm/api/v6/6AYY37jfdO6hpXcMjf9Yu5cnmO0/AAAABSXRk1jfrzzTcKdrNMpV6rDB6LrfGS9FSZ3R2_rUwrddfFlH9R2OQUpStQ4jcuou1j2BY600JY-75-2wtQ-PHpy3yLL1qWv-L0Xx.jpg?r=a35",
-        seasons: []
-      },
-      {
-        title: "Ed, Edd y Eddy",
-        coverImg: "https://uvn-brightspot.s3.amazonaws.com/assets/vixes/btg/7-dudas-existenciales-que-nos-dejo-el-programa-ed-edd-y-eddy-2.jpg",
-        seasons: []
-      },
-      {
-        title: "Looney Tunes",
-        coverImg: "https://img.asmedia.epimg.net/resizer/v2/QCAWZGENVVFYHNKGFTQHSOQSGE.jpg?auth=b45a8203595e64a1ac5c12bec25d82116925b671cb7ba4ec35f2ec9194bcc503&width=1472&height=828&smart=true",
-        seasons: []
-      },
-      {
-        title: "Los padrinos mágicos",
-        coverImg: "https://imagenes.atresplayer.com/atp/clipping/cmsimages02/2017/11/02/BE07CCA4-071B-498D-B0D6-6769FD3AE96E//720x540.jpg",
-        seasons: []
-      },
-      {
-        title: "Las Maravillosas Desventuras de FlapJack",
-        coverImg: "https://beam-images.warnermediacdn.com/BEAM_LWM_DELIVERABLES/6f1381c9-9946-4f8c-9267-de1fddbac365/19192fe4-6ee2-11ef-bb0b-0afff21f57b1?host=wbd-images.prod-vod.h264.io&partner=beamcom",
-        seasons: []
-      },
-      {
-        title: "Danny Phantom",
-        coverImg: "https://static0.cbrimages.com/wordpress/wp-content/uploads/2025/05/danny-phantom-theory.jpg?w=1200&h=675&fit=crop",
-        seasons: []
-      },
-      {
-        title: "KND: Los Chicos Del Barrio",
-        coverImg: "https://www.thecoffeetoons.com/wp-content/uploads/geekmi_-_2022-08-25t092627_999.jpg_1902800913.webp",
-        seasons: []
-      },
-      {
-        title: "El Laboratorio de Dexter",
-        coverImg: "https://www.ecartelera.com/images/img/209600/209685_el-laboratorio-de-dexter.jpg",
-        seasons: []
-      },
-      {
-        title: "Las Chicas Superpoderosas",
-        coverImg: "https://www.fucsia.co/resizer/v2/4UR47UZZ4BHMFEDKQWC5FN472Y.jpg?auth=ad9c60dce6d7b3ca7743f6da1147aa189813c0fe594e1138c49e9e06f96c0c98&smart=true&quality=75&width=1280",
-        seasons: [
-          {
-            name: "Temporada 1",
-            episodes: [
-              { title: "Monkey See Doggie Do, Mommy Fearest", url: "https://cubeembed.rpmvid.com/#a9deb" },
-              { title: "Insect Inside, Powerpuff Bluff", url: "https://cubeembed.rpmvid.com/#x5gh5" }
-            ]
-          }
-        ]
-      },
-      {
-        title: "Bob Esponja",
-        coverImg: "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da8413c1f5647d1911e492009feb",
-        seasons: [
-          {
-            name: "Temporada 1",
-            episodes: [
-              { title: "Se Busca Ayuda", url: "https://dhtpre.com/embed/xzgds6v30wet" },
-              { title: "La Aspiradora", url: "https://dhtpre.com/embed/0d6ubfq1qroo" },
-              { title: "Tomemos el Té", url: "https://dhtpre.com/embed/o6lpncgtf6bv" },
-              { title: "Pompas de Jabón", url: "https://dhtpre.com/embed/ors1hhqg36rg" },
-              { title: "Pantalones Rotos", url: "https://dhtpre.com/embed/0661my9rykj0" },
-              { title: "Pesca de Medusas", url: "https://dhtpre.com/embed/mc00bbre1f4z" },
-              { title: "Plankton", url: "https://dhtpre.com/embed/a9exq2n9bnlr" },
-              { title: "Los Traviesos Vecinos Náuticos", url: "https://dhtpre.com/embed/35qg1l5ooyvy" },
-              { title: "Escuela de Navegación", url: "https://dhtpre.com/embed/w0lbn1pxob3f" },
-              { title: "Pizza a Domicilio", url: "https://dhtpre.com/embed/uol35petfaou" },
-              { title: "Hogar Dulce Piña", url: "https://dhtpre.com/embed/nkgwnhtqtybd" },
-              { title: "Tritón y el Joven Percebe", url: "https://dhtpre.com/embed/7dfor79xtxvl" },
-              { title: "Los Pepinillos", url: "https://dhtpre.com/embed/832aefc93ium" },
-              { title: "Vigilante del Aula", url: "https://dhtpre.com/embed/h0qxruxj7kjw" },
-              { title: "Jalea de Medusas", url: "https://dhtpre.com/embed/meypyu3hg01r" },
-              { title: "El Cohete de Arenita", url: "https://dhtpre.com/embed/j1p7sj6v2syk" },
-              { title: "Las Botas Chillonas", url: "https://dhtpre.com/embed/c9qxmtibdcni" },
-              { title: "El Llamado de la Naturaleza", url: "https://dhtpre.com/embed/ga2fjlzcxy2t" },
-              { title: "El Día Opuesto", url: "https://dhtpre.com/embed/g38s1aqc3ng8" },
-              { title: "Choque Cultural", url: "https://dhtpre.com/embed/dzdjda2uo9is" },
-              { title: "Amistad Interesada", url: "https://dhtpre.com/embed/7zcst93cckx3" },
-              { title: "Bob Musculoso", url: "https://dhtpre.com/embed/g9zjegr7hb6x" },
-              { title: "Calamardo, Fantasma de Malas Pulgas", url: "https://dhtpre.com/embed/9nbw08o3w8rq" },
-              { title: "La Pareja", url: "https://dhtpre.com/embed/u8b5xeplbn6m" },
-              { title: "Empleado del Mes", url: "https://dhtpre.com/embed/tgx1lcw3dwi3" }
-            ]
-          },
-          {
-            name: "Temporada 2",
-            episodes: [
-              { title: "Noche de Brujas", url: "https://dhtpre.com/embed/8i6u2200m2eh" },
-              { title: "Un Buen Vecino", url: "https://dhtpre.com/embed/t6rojtqz9yqt" },
-              { title: "SB-129", url: "https://dhtpre.com/embed/xzuckysi632b" },
-              { title: "Cortadores Karatekas", url: "https://dhtpre.com/embed/v07dq2ibqazw" },
-              { title: "Hora de Dormir", url: "https://dhtpre.com/embed/pe957lhpifvm" },
-              { title: "La Peste", url: "https://dhtpre.com/embed/hjpmedp2jhq0" },
-              { title: "El Día de San Valentín", url: "https://dhtpre.com/embed/uerw6kb8qps3" },
-              { title: "El Papel", url: "https://dhtpre.com/embed/7hygak6rpl2h" },
-              { title: "Piratas", url: "https://dhtpre.com/embed/tsq1u2fr2j1j" },
-              { title: "El Abismo", url: "https://dhtpre.com/embed/itka0owhzzmn" },
-              { title: "Texas", url: "https://dhtpre.com/embed/qxf7mraphxx8" },
-              { title: "Ser Asertivo", url: "https://dhtpre.com/embed/byytgx6tzbbn" },
-              { title: "Día de Tontos", url: "https://dhtpre.com/embed/m72fzznq43lw" },
-              { title: "Enganchado", url: "https://dhtpre.com/embed/kg9nlnti2w2w" },
-              { title: "Tritón y el Niño Percebe II", url: "https://dhtpre.com/embed/efr5inysqal5" },
-              { title: "Algo Apesta", url: "https://dhtpre.com/embed/0xca0dwesir1" },
-              { title: "Amigo Burbuja", url: "https://dhtpre.com/embed/85rdnkl4esu5" },
-              { title: "Amor Cascarudo", url: "https://dhtpre.com/embed/dl8xqr7vohxz" },
-              { title: "Arenita, Bob Esponja y la Lombriz", url: "https://dhtpre.com/embed/frrlctry0j02" },
-              { title: "Bienvenido a Balde de Bocado", url: "https://dhtpre.com/embed/z0q3b3gjptab" },
-              { title: "Boca de Marinero", url: "https://dhtpre.com/embed/ech69kp7xt6y" },
-              { title: "Bota Dominante", url: "https://dhtpre.com/embed/lk9w13fcd8hn" },
-              { title: "Calamar en Huelga", url: "https://dhtpre.com/embed/zxsxf10k6iab" },
-              { title: "Cazador de Medusas", url: "https://dhtpre.com/embed/423bnf62m1mz" },
-              { title: "Color Burgers", url: "https://dhtpre.com/embed/enomkequijo6" },
-              { title: "Día Libre de Calamardo", url: "https://dhtpre.com/embed/6lb1nbubix3u" },
-              { title: "El Manny de la Discordia", url: "https://dhtpre.com/embed/sqw6uyqrcnky" },
-              { title: "Expulsado", url: "https://dhtpre.com/embed/khw66n5r3mz9" },
-              { title: "Frankentrazo", url: "https://dhtpre.com/embed/zajm9qi7s4u9" }
-            ]
-          }
-        ]
-      }
-    ];
+    <div class="section-container">
+        <h2 style="font-size: 18px; margin-bottom: 15px;">Series Sugeridas</h2>
+        <div id="carousel" class="carousel"></div>
+    </div>
 
-    const grid = document.getElementById("seriesGrid");
-    const listView = document.getElementById("listView");
-    const detailsView = document.getElementById("detailsView");
-    const backBtn = document.getElementById("backBtn");
-    const detailTitle = document.getElementById("detailTitle");
-    const detailMeta = document.getElementById("detailMeta");
-    const detailCover = document.getElementById("detailCover");
-    const seasonsContainer = document.getElementById("seasonsContainer");
+    <div id="details-screen">
+        <span class="close-details" onclick="closeDetails()">✕</span>
+        <div class="details-header">
+            <img id="det-poster" class="details-poster" src="">
+            <div class="details-info">
+                <h1 id="det-title">Título</h1>
+                <p id="det-desc" style="color: #ccc; line-height: 1.6;"></p>
+                <select id="season-select" class="season-selector" onchange="loadEpisodes()"></select>
+            </div>
+        </div>
+        <h2 style="border-left: 4px solid var(--accent); padding-left: 15px;">Episodios</h2>
+        <div id="episodes-list" class="episodes-grid"></div>
+    </div>
 
-    function renderGrid(seriesList = data) {
-      grid.innerHTML = "";
-      seriesList.forEach((s, i) => {
-        const card = document.createElement("div");
-        card.className = "card";
-        card.innerHTML = `
-          <img class="network-logo" src="${s.network==='cn' ? 'https://w7.pngwing.com/pngs/289/648/png-transparent-cartoon-network-too-cartoon-network-arabic-television-channel-1682-television-text-logo.png' : s.network==='nick' ? 'https://1000marcas.net/wp-content/uploads/2020/03/logo-Nickelodeon.png' : ''}" style="position:absolute; top:8px; right:8px; width:38px; height:auto; z-index:20;" />
-          <div class="cover" style="background-image:url('${s.coverImg}')">
-            <div class="cover-title">${s.title}</div>
-          </div>
-          <div class="title">${s.title}</div>
-          <div class="meta">${s.seasons.length} temporada(s)</div>
-        `;
-        card.addEventListener("click", () => openSeries(data.indexOf(s)));
-        grid.appendChild(card);
-      });
-    }
+    <div id="player-overlay">
+        <div style="position: absolute; top: 20px; right: 30px; font-size: 30px; cursor: pointer;" onclick="closePlayer()">✕</div>
+        <div class="player-container">
+            <div class="iframe-box"><iframe id="main-iframe" src="" allowfullscreen></iframe></div>
+        </div>
+    </div>
 
-    function openSeries(index) {
-      const s = data[index];
-      listView.style.display = "none";
-      detailsView.style.display = "block";
-      detailTitle.textContent = s.title;
-      detailMeta.textContent = s.seasons.length + " temporada(s)";
-      detailCover.style.backgroundImage = `url('${s.coverImg}')`;
-      detailCover.style.backgroundSize = "cover";
-      detailCover.style.backgroundPosition = "center";
+    <script>
+        const TOKEN = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJhMzZiYmZlMmNiNzdjOWIyNzliOWVkNDc4OWY5NjcxYSIsIm5iZiI6MTc3MDE4OTU4MS4yMTYsInN1YiI6IjY5ODJmMzBkMjM1MmM2MzEzNTM4MzdjNiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.IEXOBTsDACDo_m6DUt_hqfRvtosp1hLmvv93jNALnKU';
+        const IDS = [40075, 387, 4686, 2085, 557, 47035, 6673, 50035, 7736, 1878, 35094, 46759, 18123, 926, 652, 64228, 418, 1068, 8379, 552, 18351, 34891, 2304, 3934, 31499, 234, 2309, 79, 1647, 618, 4627, 17572, 607, 28624, 1769, 346, 17463, 656, 288, 1877, 4630, 33835, 604, 2355, 733, 274382, 897, 4229, 2405, 55924, 47480, 676, 127445, 14705, 9907, 30778, 21086, 94075, 12225, 76004, 32605, 65763, 670, 537, 7821, 3022, 232869, 296764, 126824, 68073, 64228, 12454, 17194, 3022, 504, 384, 588, 657, 2745, 10821, 3579, 1567, 2009, 4630, 2129, 178, 1643, 1848, 1960, 246, 3809, 1346, 3031, 10219, 6046, 3527, 9921, 3854, 15641, 7330, 18352, 5559, 18828, 18848, 33623, 39107, 46358, 46262, 46928, 61520, 46879, 55924, 57532, 60306, 57748, 61330, 61923, 84587, 177, 3611, 606, 4350, 2723, 2660, 4246, 1720, 255, 446, 6618, 10548, 7048, 6040, 15260, 32118, 31109, 33428, 31132, ];
 
-      seasonsContainer.innerHTML = "";
-      s.seasons.forEach((season) => {
-        const div = document.createElement("div");
-        div.className = "season";
-        const h = document.createElement("h3");
-        h.textContent = season.name;
-        div.appendChild(h);
+        let db = [];
+        let selectedShow = null;
 
-        season.episodes.forEach((ep) => {
-          const epDiv = document.createElement("div");
-          epDiv.className = "episode";
-          epDiv.style.flexDirection = "column";
-          epDiv.style.alignItems = "flex-start";
+        async function init() {
+            const shuffledIds = [...IDS].sort(() => 0.5 - Math.random());
+            const fetchs = shuffledIds.map(id => 
+                fetch(`https://api.themoviedb.org/3/tv/${id}?language=es-MX`, {
+                    headers: { Authorization: `Bearer ${TOKEN}` }
+                }).then(r => r.json())
+            );
+            db = await Promise.all(fetchs);
+            setHero(db[0]);
+            renderCarousel(db);
+        }
 
-          const iframeBox = document.createElement("div");
-          iframeBox.style.display = "none";
-          iframeBox.style.width = "100%";
-          iframeBox.style.marginBottom = "12px";
+        function renderCarousel(list) {
+            document.getElementById('carousel').innerHTML = list.map(s => `
+                <div class="card" onclick="openDetails(${s.id})">
+                    <img src="https://image.tmdb.org/t/p/w342${s.poster_path}">
+                    <div class="card-title">${s.name}</div>
+                </div>
+            `).join('');
+        }
 
-          const btn = document.createElement("button");
-          btn.textContent = ep.title;
-          btn.style.cssText = "min-width:240px;height:44px;padding:0 22px;border-radius:999px;background:linear-gradient(135deg,#8b7bff,#b993ff);box-shadow:0 10px 20px rgba(139,123,255,0.45);color:#fff;font-weight:600;font-size:14px;border:none;cursor:pointer;white-space:nowrap;";
+        function setHero(s) {
+            document.getElementById('hero').style.backgroundImage = `url(https://image.tmdb.org/t/p/original${s.backdrop_path})`;
+            document.getElementById('hero-title').innerText = s.name;
+            document.getElementById('hero-desc').innerText = s.overview ? s.overview.substring(0, 150) + "..." : "";
+        }
 
-          btn.addEventListener("click", () => {
-            document.getElementById("lastWatched").textContent = `Último capítulo visto: ${ep.title}`;
-            iframeBox.innerHTML = `<div class='reactive-frame'><iframe src='${ep.url}' scrolling='no' allowfullscreen webkitallowfullscreen mozallowfullscreen></iframe></div>`;
-            iframeBox.style.display = iframeBox.style.display === "none" ? "block" : "none";
-          });("click", () => {
-            iframeBox.innerHTML = `<div class='reactive-frame'><iframe src='${ep.url}' scrolling='no' allowfullscreen webkitallowfullscreen mozallowfullscreen></iframe></div>`;
-            iframeBox.style.display = iframeBox.style.display === "none" ? "block" : "none";
-          });
+        // --- LÓGICA DE CAPÍTULOS ---
+        async function openDetails(id) {
+            selectedShow = db.find(s => s.id == id);
+            document.getElementById('det-title').innerText = selectedShow.name;
+            document.getElementById('det-desc').innerText = selectedShow.overview;
+            document.getElementById('det-poster').src = `https://image.tmdb.org/t/p/w500${selectedShow.poster_path}`;
+            
+            // Llenar selector de temporadas
+            const select = document.getElementById('season-select');
+            select.innerHTML = selectedShow.seasons
+                .filter(se => se.season_number > 0)
+                .map(se => `<option value="${se.season_number}">Temporada ${se.season_number}</option>`).join('');
 
-          epDiv.appendChild(iframeBox);
-          epDiv.appendChild(btn);
-          div.appendChild(epDiv);
-        });
+            document.getElementById('details-screen').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            loadEpisodes();
+        }
 
-        seasonsContainer.appendChild(div);(div);(div);
-      });
-    }
+        async function loadEpisodes() {
+            const seasonNum = document.getElementById('season-select').value;
+            const res = await fetch(`https://api.themoviedb.org/3/tv/${selectedShow.id}/season/${seasonNum}?language=es-MX`, {
+                headers: { Authorization: `Bearer ${TOKEN}` }
+            });
+            const data = await res.json();
+            
+            document.getElementById('episodes-list').innerHTML = data.episodes.map(ep => `
+                <div class="episode-card" onclick="playEpisode(${seasonNum}, ${ep.episode_number})">
+                    <img class="episode-img" src="${ep.still_path ? 'https://image.tmdb.org/t/p/w300'+ep.still_path : 'https://via.placeholder.com/300x150?text=No+Preview'}">
+                    <div class="episode-body">
+                        <div class="ep-number">Capítulo ${ep.episode_number}</div>
+                        <div class="ep-name">${ep.name}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
 
-    backBtn.addEventListener("click", () => {
-      detailsView.style.display = "none";
-      listView.style.display = "block";
-    });
+        function playEpisode(s, e) {
+            const url = `https://vidsrc-embed.ru/embed/tv?tmdb=${selectedShow.id}&season=${s}&episode=${e}&ds_lang=es`;
+            document.getElementById('main-iframe').src = url;
+            document.getElementById('player-overlay').style.display = 'flex';
+        }
 
-    // Buscador
-    document.getElementById("searchBar").addEventListener("input", function() {
-      const term = this.value.toLowerCase();
-      const filtered = data.filter(s => s.title.toLowerCase().includes(term));
-      renderGrid(filtered);
-    });
+        function closeDetails() {
+            document.getElementById('details-screen').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
 
-    // Login
-    document.getElementById('loginBtn').addEventListener('click', () => {
-      document.getElementById('loginScreen').style.display = 'none';
-    });
+        function closePlayer() {
+            document.getElementById('player-overlay').style.display = 'none';
+            document.getElementById('main-iframe').src = "";
+        }
 
-    // Render inicial
-    renderGrid();
-  </script>
+        function filterByNetwork(name, el) {
+            document.querySelectorAll('.brand-item').forEach(b => b.classList.remove('active'));
+            el.classList.add('active');
+            const filtered = db.filter(s => s.networks.some(n => n.name.toLowerCase().includes(name.toLowerCase())));
+            renderCarousel(filtered);
+        }
+
+        function resetFilter(el) {
+            document.querySelectorAll('.brand-item').forEach(b => b.classList.remove('active'));
+            el.classList.add('active');
+            renderCarousel(db);
+        }
+
+        init();
+    </script>
 </body>
 </html>
